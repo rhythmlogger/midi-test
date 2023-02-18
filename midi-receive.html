@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <button id="btn">on</button>
+    <script>
+
+        let audioContext = null;
+        document.getElementById('btn').addEventListener('click', function (e) {
+            navigator.requestMIDIAccess()
+                .then((midiAccess) => {
+                    // get the first MIDI input device
+                    if (audioContext == null) {
+                        audioContext = new AudioContext();
+                    }
+                    const midiDevice = midiAccess.inputs.values().next().value;
+
+                    console.log(midiDevice);
+                    // add event listener for MIDI messages
+
+                    midiDevice.onmidimessage = (message) => {
+                        const oscillator = audioContext.createOscillator();
+                        var g = audioContext.createGain();
+                        // create an AudioContext and oscillator
+                        // parse the MIDI message data
+                        const [status, note, velocity] = message.data;
+                        console.log(message.data);
+                        // check if the message is a note on message
+                        // set the oscillator frequency based on the MIDI note number
+
+                        g.connect(audioContext.destination);
+                        if (status === 0x90) {
+                            if (velocity > 0) {
+                                oscillator.frequency.value = 440 * Math.pow(2, (note - 48) / 12);
+                                g.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 1);
+                                oscillator.connect(g);
+                                g.connect(audioContext.destination);
+                                oscillator.start(0);
+                            }
+
+                        };
+                    }
+                })
+                .catch((error) => console.error('MIDI error', error));
+        });;
+
+    </script>
+</body>
+
+</html>

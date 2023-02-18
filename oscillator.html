@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+</head>
+
+<body>
+    <textarea id="textarea" rows="30" cols="30">
+
+    </textarea>
+    <script>
+        function getKey(n) {
+            let frequency = (Math.pow(2, (n - 48) / 12)) * 440;
+            return frequency;
+        }
+
+        var context = null;
+        function playNote(n) {
+            if (context == null) {
+                context = new AudioContext();
+            }
+            var o = context.createOscillator();
+            var g = context.createGain();
+            o.frequency.value = getKey(n);
+            g.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 2);
+            o.connect(g);
+            g.connect(context.destination);
+            o.start(0);
+
+        }
+        let list = [
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            '0',
+            'q',
+            'w',
+            'e',
+            'r',
+            't',
+            'y',
+            'u',
+            'i',
+            'o',
+            'p',
+            'a',
+            's',
+            'd',
+            'f',
+            'g',
+            'h',
+            'j',
+            'k',
+            'l',
+            'z',
+            'x',
+            'c',
+            'v',
+            'b',
+            'n',
+            'm',
+        ];
+        let keyMap = new Map();
+        let idx = 28;
+        for (let i = 0; i < list.length; i++) {
+            keyMap.set(list[i], idx++);
+        }
+        let textarea = document.getElementById('textarea');
+        textarea.addEventListener('keydown', function (e) {
+            let k = keyMap.get(e.key);
+            if (k != undefined) {
+                playNote(k);
+            }
+        })
+        console.log(getKey(24));
+    </script>
+</body>
+
+</html>
